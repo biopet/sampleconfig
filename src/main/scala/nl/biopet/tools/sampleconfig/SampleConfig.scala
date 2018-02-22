@@ -23,6 +23,8 @@ package nl.biopet.tools.sampleconfig
 
 import nl.biopet.utils.tool.ToolCommand
 import nl.biopet.utils.conversions
+import nl.biopet.utils.io.writeLinesToFile
+import play.api.libs.json.Json
 
 object SampleConfig extends ToolCommand[Args] {
   def emptyArgs = Args()
@@ -37,21 +39,63 @@ object SampleConfig extends ToolCommand[Args] {
       .map(conversions.yamlFileToMap)
       .foldLeft(Map[String, Any]())(conversions.mergeMaps(_, _))
 
-    //TODO: Add config
     (cmdArgs.mode, cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
-      case ("samples", _, _, _) => getSamples(config).foreach(println)
-      case ("libraries", Some(sample), _, _) =>
+      case (Some("samples"), _, _, _) => getSamples(config).foreach(println)
+      case (Some("libraries"), Some(sample), _, _) =>
         getLibraries(config, sample).foreach(println)
-      case ("libraries", _, _, _) =>
+      case (Some("libraries"), _, _, _) =>
         throw new IllegalArgumentException(
           "libraries does require a sample name")
-      case ("readgroups", Some(sample), Some(library), _) =>
+      case (Some("readgroups"), Some(sample), Some(library), _) =>
         getReadgroups(config, sample, library).foreach(println)
-      case ("readgroups", _, _, _) =>
+      case (Some("readgroups"), _, _, _) =>
         throw new IllegalArgumentException(
           "readgroups does require a sample name and library name")
-      case (m, _, _, _) =>
+      case (Some(m), _, _, _) =>
         throw new IllegalArgumentException(s"Mode '$m' does not exist")
+      case _ =>
+    }
+
+    cmdArgs.jsonOutput.foreach { file =>
+      val map = (cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
+        case (Some(sample), Some(library), Some(readgroup)) =>
+          Map(
+            "samples" -> Map(
+              sample -> Map(
+                "libraries" -> Map(
+                  library -> Map("readgroups" -> Map(
+                    readgroup -> getReadgroupConfig(config,
+                                                    sample,
+                                                    library,
+                                                    readgroup)))))))
+        case (Some(sample), Some(library), None) =>
+          Map(
+            "samples" -> Map(sample -> Map("libraries" -> Map(
+              library -> getlibraryConfig(config, sample, library)))))
+        case (Some(sample), None, None) =>
+          Map("samples" -> Map(sample -> getSampleConfig(config, sample)))
+        case _ =>
+          throw new IllegalArgumentException("No tags found to write a file")
+      }
+      writeLinesToFile(file, Json.stringify(conversions.mapToJson(map)) :: Nil)
+    }
+
+    cmdArgs.tsvOutput.foreach { file =>
+      val map = (cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
+        case (Some(sample), Some(library), Some(readgroup)) =>
+          getReadgroupConfig(config, sample, library, readgroup)
+        case (Some(sample), Some(library), None) =>
+          getlibraryConfig(config, sample, library).filter {
+            case (k, _) => k != "readgroups"
+          }
+        case (Some(sample), None, None) =>
+          getSampleConfig(config, sample).filter {
+            case (k, _) => k != "libraries"
+          }
+        case _ =>
+          throw new IllegalArgumentException("No tags found to write a file")
+      }
+      writeLinesToFile(file, map.map { case (k, v) => s"$k\t$v" }.toList)
     }
 
     logger.info("Done")
