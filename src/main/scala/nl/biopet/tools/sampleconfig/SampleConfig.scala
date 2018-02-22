@@ -185,7 +185,7 @@ object SampleConfig extends ToolCommand[Args] {
   def manualText: String =
     """
       |This tool can support multiple sample config files, this files will be merged into 1 large config.
-      |Depending if sample/library if given the list of childs is given, see also the examples
+      |Depending if sample/library if given the list is given, see also the examples
     """.stripMargin
 
   def exampleText: String =
