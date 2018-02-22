@@ -21,6 +21,8 @@
 
 package nl.biopet.tools.sampleconfig
 
+import java.io.File
+
 import nl.biopet.utils.tool.ToolCommand
 import nl.biopet.utils.conversions
 import nl.biopet.utils.io.writeLinesToFile
@@ -57,48 +59,68 @@ object SampleConfig extends ToolCommand[Args] {
     }
 
     cmdArgs.jsonOutput.foreach { file =>
-      val map = (cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
-        case (Some(sample), Some(library), Some(readgroup)) =>
-          Map(
-            "samples" -> Map(
-              sample -> Map(
-                "libraries" -> Map(
-                  library -> Map("readgroups" -> Map(
-                    readgroup -> getReadgroupConfig(config,
-                                                    sample,
-                                                    library,
-                                                    readgroup)))))))
-        case (Some(sample), Some(library), None) =>
-          Map(
-            "samples" -> Map(sample -> Map("libraries" -> Map(
-              library -> getlibraryConfig(config, sample, library)))))
-        case (Some(sample), None, None) =>
-          Map("samples" -> Map(sample -> getSampleConfig(config, sample)))
-        case _ =>
-          throw new IllegalArgumentException("No tags found to write a file")
-      }
-      writeLinesToFile(file, Json.stringify(conversions.mapToJson(map)) :: Nil)
+      jsonOutput(config,
+                 file,
+                 cmdArgs.sample,
+                 cmdArgs.library,
+                 cmdArgs.readgroup)
     }
 
     cmdArgs.tsvOutput.foreach { file =>
-      val map = (cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
-        case (Some(sample), Some(library), Some(readgroup)) =>
-          getReadgroupConfig(config, sample, library, readgroup)
-        case (Some(sample), Some(library), None) =>
-          getlibraryConfig(config, sample, library).filter {
-            case (k, _) => k != "readgroups"
-          }
-        case (Some(sample), None, None) =>
-          getSampleConfig(config, sample).filter {
-            case (k, _) => k != "libraries"
-          }
-        case _ =>
-          throw new IllegalArgumentException("No tags found to write a file")
-      }
-      writeLinesToFile(file, map.map { case (k, v) => s"$k\t$v" }.toList)
+      tsvOutput(config,
+                file,
+                cmdArgs.sample,
+                cmdArgs.library,
+                cmdArgs.readgroup)
     }
 
     logger.info("Done")
+  }
+
+  def jsonOutput(config: Map[String, Any],
+                 outputFile: File,
+                 sample: Option[String],
+                 library: Option[String],
+                 readgroup: Option[String]): Unit = {
+    val map = (sample, library, readgroup) match {
+      case (Some(s), Some(l), Some(r)) =>
+        Map(
+          "samples" -> Map(s -> Map("libraries" -> Map(l -> Map(
+            "readgroups" -> Map(r -> getReadgroupConfig(config, s, l, r)))))))
+      case (Some(s), Some(l), None) =>
+        Map(
+          "samples" -> Map(
+            s -> Map("libraries" -> Map(l -> getlibraryConfig(config, s, l)))))
+      case (Some(s), None, None) =>
+        Map("samples" -> Map(s -> getSampleConfig(config, s)))
+      case _ =>
+        throw new IllegalArgumentException("No tags found to write a file")
+    }
+    writeLinesToFile(outputFile,
+                     Json.stringify(conversions.mapToJson(map)) :: Nil)
+  }
+
+  def tsvOutput(config: Map[String, Any],
+                outputFile: File,
+                sample: Option[String],
+                library: Option[String],
+                readgroup: Option[String]): Unit = {
+    val map = (sample, library, readgroup) match {
+      case (Some(s), Some(l), Some(r)) =>
+        getReadgroupConfig(config, s, l, r)
+      case (Some(s), Some(l), None) =>
+        getlibraryConfig(config, s, l).filter {
+          case (k, _) => k != "readgroups"
+        }
+      case (Some(s), None, None) =>
+        getSampleConfig(config, s).filter {
+          case (k, _) => k != "libraries"
+        }
+      case _ =>
+        throw new IllegalArgumentException("No tags found to write a file")
+    }
+    writeLinesToFile(outputFile, map.map { case (k, v) => s"$k\t$v" }.toList)
+
   }
 
   private def getSamplesConfig(config: Map[String, Any]): Map[String, Any] = {
