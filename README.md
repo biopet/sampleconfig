@@ -1,7 +1,8 @@
 # SampleConfig
 
 
-
+This mean can extract samples, libraries and readgroups from a sample config file. This meant as a supporting tool inside wdl pipelines.
+It can also output a single layer as tsv file.
     
 
 # Documentation

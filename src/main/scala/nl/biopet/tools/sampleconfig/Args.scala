@@ -24,7 +24,6 @@ package nl.biopet.tools.sampleconfig
 import java.io.File
 
 case class Args(inputFiles: List[File] = Nil,
-                mode: Option[String] = None,
                 sample: Option[String] = None,
                 library: Option[String] = None,
                 readgroup: Option[String] = None,

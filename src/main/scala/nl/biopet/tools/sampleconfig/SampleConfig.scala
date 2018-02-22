@@ -41,21 +41,12 @@ object SampleConfig extends ToolCommand[Args] {
       .map(conversions.yamlFileToMap)
       .foldLeft(Map[String, Any]())(conversions.mergeMaps(_, _))
 
-    (cmdArgs.mode, cmdArgs.sample, cmdArgs.library, cmdArgs.readgroup) match {
-      case (Some("samples"), _, _, _) => getSamples(config).foreach(println)
-      case (Some("libraries"), Some(sample), _, _) =>
-        getLibraries(config, sample).foreach(println)
-      case (Some("libraries"), _, _, _) =>
-        throw new IllegalArgumentException(
-          "libraries does require a sample name")
-      case (Some("readgroups"), Some(sample), Some(library), _) =>
+    (cmdArgs.sample, cmdArgs.library) match {
+      case (Some(sample), Some(library)) =>
         getReadgroups(config, sample, library).foreach(println)
-      case (Some("readgroups"), _, _, _) =>
-        throw new IllegalArgumentException(
-          "readgroups does require a sample name and library name")
-      case (Some(m), _, _, _) =>
-        throw new IllegalArgumentException(s"Mode '$m' does not exist")
-      case _ =>
+      case (Some(sample), _) =>
+        getLibraries(config, sample).foreach(println)
+      case _ => getSamples(config).foreach(println)
     }
 
     cmdArgs.jsonOutput.foreach { file =>
@@ -187,16 +178,31 @@ object SampleConfig extends ToolCommand[Args] {
 
   def descriptionText: String =
     """
-      |
+      |This mean can extract samples, libraries and readgroups from a sample config file. This meant as a supporting tool inside wdl pipelines.
+      |It can also output a single layer as tsv file.
     """.stripMargin
 
   def manualText: String =
     """
-      |
+      |This tool can support multiple sample config files, this files will be merged into 1 large config.
+      |Depending if sample/library if given the list of childs is given, see also the examples
     """.stripMargin
 
   def exampleText: String =
-    """
+    s"""
+      |Extracting samples, list goes to stdout:
+      |${example("-i", "<input config>")}
       |
-    """.stripMargin
+      |Extracting libraries, list go to stdout:
+      |${example("-i", "<input config>", "--sample", "<sample name>")}
+      |
+      |Extracting readgroups, list go to stdout:
+      |${example("-i",
+                 "<input config>",
+                 "--sample",
+                 "<sample name>",
+                 "--library",
+                 "<library name>")}
+      |
+      |""".stripMargin
 }
