@@ -19,4 +19,4 @@ developers += Developer(id = "ffinfo",
 scalaVersion := "2.11.11"
 
 libraryDependencies += "com.github.biopet" %% "tool-utils" % "0.3"
-libraryDependencies += "com.github.biopet" %% "tool-test-utils" % "0.2-SNAPSHOT" % Test changing ()
+libraryDependencies += "com.github.biopet" %% "tool-test-utils" % "0.2.1"
