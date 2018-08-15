@@ -19,37 +19,37 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.cromwellarrays
 
-import nl.biopet.tools.sampleconfig.cromwellarrays.CromwellArrays
-import nl.biopet.tools.sampleconfig.extracttsv.ExtractTsv
-import nl.biopet.tools.sampleconfig.readfromtsv.ReadFromTsv
-import nl.biopet.utils.conversions
-import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.tool.multi.MultiToolCommand
+import java.io.File
 
-object SampleConfig extends MultiToolCommand {
+import nl.biopet.utils.test.tools.ToolTest
+import org.testng.annotations.Test
+import nl.biopet.utils.io
 
-  def subTools: Map[String, List[ToolCommand[_]]] =
-    Map("Tools" -> List(ExtractTsv, ReadFromTsv, CromwellArrays))
+class CromwellArraysTest extends ToolTest[Args] {
 
-  def descriptionText: String = extendedDescriptionText
+  def toolCommand: CromwellArrays.type = CromwellArrays
 
-  def manualText: String = extendedManualText
-
-  def exampleText: String = extendedExampleText
-}
-
-class SampleConfig(config: Map[String, Any]) {
-  lazy val samples: Map[String, Sample] = config.get("samples") match {
-    case Some(s) =>
-      conversions.any2map(s).map {
-        case (name, c) => name -> new Sample(name, conversions.any2map(c))
-      }
-    case _ => Map()
+  @Test
+  def testNoArgs(): Unit = {
+    intercept[IllegalArgumentException] {
+      CromwellArrays.main(Array())
+    }.getMessage
   }
 
-  lazy val values: Map[String, Any] = config.filter {
-    case (k, _) => k != "samples"
+  @Test
+  def testDefault(): Unit = {
+    val outputFile = File.createTempFile("test.", ".json")
+    outputFile.deleteOnExit()
+    CromwellArrays.main(
+      Array("-i",
+            resourcePath("/samples.yml"),
+            "-o",
+            outputFile.getAbsolutePath))
+
+    val content = io.getLinesFromFile(outputFile)
+    content.mkString("\n") shouldBe """{"samples":[{"bla":"bla","id":"sample2","libraries":[]},{"id":"sample1","libraries":[{"id":"lib1","readgroups":[{"R2":"bla2","R1":"bla1","id":"rg1"}]}]}]}"""
   }
+
 }

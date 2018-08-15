@@ -15,6 +15,14 @@ YAML format, suitable for all Biopet Queue pipelines, from TSV file(s).
     
         
 
+#### Tools - CromwellArrays
+
+This tool will convert the sample configs to a array based format that can be used inside wdl pipelines.
+This tool is only to support biowdl pipelines.
+
+    
+        
+
 # Documentation
 
 For documentation and manuals visit our [github.io page](https://biopet.github.io/sampleconfig).
