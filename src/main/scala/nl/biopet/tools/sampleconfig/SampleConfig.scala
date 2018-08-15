@@ -29,8 +29,7 @@ import nl.biopet.utils.tool.multi.MultiToolCommand
 object SampleConfig extends MultiToolCommand {
 
   def subTools: Map[String, List[ToolCommand[_]]] =
-    Map(
-      "Tools" -> List(ExtractTsv, ReadFromTsv))
+    Map("Tools" -> List(ExtractTsv, ReadFromTsv))
 
   def descriptionText: String = extendedDescriptionText
 
