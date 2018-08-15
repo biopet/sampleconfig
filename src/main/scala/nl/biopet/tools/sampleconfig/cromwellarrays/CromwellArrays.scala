@@ -24,6 +24,7 @@ package nl.biopet.tools.sampleconfig.cromwellarrays
 import nl.biopet.utils.tool.ToolCommand
 import nl.biopet.tools.sampleconfig._
 import nl.biopet.utils.conversions
+import nl.biopet.utils.io
 
 object CromwellArrays extends ToolCommand[Args] {
   def emptyArgs = Args()
@@ -49,7 +50,11 @@ object CromwellArrays extends ToolCommand[Args] {
         sample.values + ("id" -> sampleId) + ("libraries" -> libraries)
     }.toList
     val json = conversions.mapToJson(Map("samples" -> biowdlSampleConfig))
-    println(json)
+
+    cmdArgs.outputFile match {
+      case Some(file) => io.writeLinesToFile(file, json.toString() :: Nil)
+      case _          => println(json)
+    }
 
     logger.info("Done")
   }

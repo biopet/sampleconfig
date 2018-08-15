@@ -21,8 +21,11 @@
 
 package nl.biopet.tools.sampleconfig.cromwellarrays
 
+import java.io.File
+
 import nl.biopet.utils.test.tools.ToolTest
 import org.testng.annotations.Test
+import nl.biopet.utils.io
 
 class CromwellArraysTest extends ToolTest[Args] {
 
@@ -37,7 +40,16 @@ class CromwellArraysTest extends ToolTest[Args] {
 
   @Test
   def testDefault(): Unit = {
-    CromwellArrays.main(Array("-i", resourcePath("/samples.yml")))
+    val outputFile = File.createTempFile("test.", ".json")
+    outputFile.deleteOnExit()
+    CromwellArrays.main(
+      Array("-i",
+            resourcePath("/samples.yml"),
+            "-o",
+            outputFile.getAbsolutePath))
+
+    val content = io.getLinesFromFile(outputFile)
+    content.mkString("\n") shouldBe """{"samples":[{"bla":"bla","id":"sample2","libraries":[]},{"id":"sample1","libraries":[{"id":"lib1","readgroups":[{"R2":"bla2","R1":"bla1","id":"rg1"}]}]}]}"""
   }
 
 }
