@@ -86,7 +86,7 @@
           
         </ul>
         <ul class="nav nav-sidebar nav-list">
-          <li><b>Project Links</b></li>
+          <li><b>Links</b></li>
 
           <li><a href="https://github.com/biopet/sampleconfig">Source code</a></li>
           <li><a href="https://github.com/biopet/sampleconfig/issues">Feedback, feature requests and bug reports</a></li>
@@ -103,8 +103,14 @@
 
         
         <h1 id="description" class="section">Description</h1>
+        
+        <h4 id="tools---extracttsv" class="section">Tools - ExtractTsv</h4>
         <p>This mean can extract samples, libraries and readgroups from a sample config file. This meant as a supporting tool inside wdl pipelines.
         It can also output a single layer as tsv file.</p>
+        
+        <h4 id="tools---readfromtsv" class="section">Tools - ReadFromTsv</h4>
+        <p>This tool enables a user to create a full sample sheet in JSON format or
+        YAML format, suitable for all Biopet Queue pipelines, from TSV file(s).</p>
         
         <h1 id="installation" class="section">Installation</h1>
         <p>SampleConfig requires Java 8 to be installed on your device. Download Java 8
@@ -115,22 +121,120 @@
         <pre><code>java -jar &lt;SampleConfig_jar&gt; --help</code></pre>
         
         <h1 id="manual" class="section">Manual</h1>
+        
+        <h4 id="tools---extracttsv-1" class="section">Tools - ExtractTsv</h4>
         <p>This tool can support multiple sample config files, this files will be merged into 1 large config.
         Depending if sample/library if given the list is given, see also the examples</p>
         
+        <h4 id="tools---readfromtsv-1" class="section">Tools - ReadFromTsv</h4>
+        <p>A user provides a TAB separated file (TSV) with sample specific
+        properties which are parsed into JSON format by the tool.
+        For example, a user wants to add certain properties to the
+        description of a sample, such as the treatment a sample received.
+         Then a TSV file with an extra column called treatment is provided.
+        The resulting file will have the &#39;treatment&#39; property in it as well.
+        The order of the columns is not relevant to the end result</p>
+        <p>The tag files works the same only the value is prefixed in the key <code>tags</code>.</p>
+        
         <h2 id="example" class="section">Example</h2>
+        
+        <h4 id="tools---extracttsv-2" class="section">Tools - ExtractTsv</h4>
         <p>Extracting samples, list goes to stdout:</p>
-        <pre><code>java -jar &lt;SampleConfig_jar&gt; \
+        <pre><code>java -jar &lt;ExtractTsv_jar&gt; \
 -i &lt;input config&gt;</code></pre>
         <p>Extracting libraries, list go to stdout:</p>
-        <pre><code>java -jar &lt;SampleConfig_jar&gt; \
+        <pre><code>java -jar &lt;ExtractTsv_jar&gt; \
 -i &lt;input config&gt; \
 --sample &lt;sample name&gt;</code></pre>
         <p>Extracting readgroups, list go to stdout:</p>
-        <pre><code>java -jar &lt;SampleConfig_jar&gt; \
+        <pre><code>java -jar &lt;ExtractTsv_jar&gt; \
 -i &lt;input config&gt; \
 --sample &lt;sample name&gt; \
 --library &lt;library name&gt;</code></pre>
+        
+        <h4 id="tools---readfromtsv-2" class="section">Tools - ReadFromTsv</h4>
+        
+        <h4 id="sample-definition" class="section">Sample definition</h4>
+        <p>To get the below example out of the tool one should provide 2 TSV files as follows:</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>sample</th>
+              <th>library</th>
+              <th>bam</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sample_ID_1</td>
+              <td>Lib_ID_1</td>
+              <td>MyFirst.bam</td>
+            </tr>
+            <tr>
+              <td>Sample_ID_2</td>
+              <td>Lib_ID_2</td>
+              <td>MySecond.bam</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>The second TSV file can contain as much properties as you would like.
+        Possible option would be: gender, age and family.
+        Basically anything you want to pass to your pipeline is possible.</p>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>sample</th>
+              <th>treatment</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Sample_ID_1</td>
+              <td>heatshock</td>
+            </tr>
+            <tr>
+              <td>Sample_ID_2</td>
+              <td>heatshock</td>
+            </tr>
+          </tbody>
+        </table>
+        
+        <h4 id="example-1" class="section">Example</h4>
+        
+        <h6 id="yaml" class="section">Yaml</h6>
+        <pre><code>samples:
+  Sample_ID_1:
+    treatment: heatshock
+   libraries:
+     Lib_ID_1:
+        bam: MyFirst.bam
+ Sample_ID_2:
+    treatment: heatshock
+   libraries:
+      Lib_ID_2:
+        bam: MySecond.bam</code></pre>
+        
+        <h6 id="json" class="section">Json</h6>
+        <pre><code>{
+  &quot;samples&quot; : {
+    &quot;Sample_ID_1&quot; : {
+      &quot;treatment&quot; : &quot;heatshock&quot;,
+      &quot;libraries&quot; : {
+        &quot;Lib_ID_1&quot; : {
+          &quot;bam&quot; : &quot;MyFirst.bam&quot;
+        }
+      }
+    },
+    &quot;Sample_ID_2&quot; : {
+      &quot;treatment&quot; : &quot;heatshock&quot;,
+      &quot;libraries&quot; : {
+        &quot;Lib_ID_2&quot; : {
+          &quot;bam&quot; : &quot;MySecond.bam&quot;
+        }
+      }
+    }
+  }
+}</code></pre>
         
         <h2 id="usage" class="section">Usage</h2>
         <p>Usage for SampleConfig:</p>
@@ -163,40 +267,16 @@
               <td>Print version</td>
             </tr>
             <tr>
-              <td>--inputFile, -i</td>
-              <td>yes</td>
+              <td>toolName</td>
+              <td>no</td>
+              <td>no</td>
+              <td>Name of the tool to execute</td>
+            </tr>
+            <tr>
+              <td>tool args</td>
+              <td>no</td>
               <td>yes (unlimited)</td>
-              <td>Input sample json, can give multiple file</td>
-            </tr>
-            <tr>
-              <td>--sample</td>
-              <td>no</td>
-              <td>no</td>
-              <td>Sample name</td>
-            </tr>
-            <tr>
-              <td>--library</td>
-              <td>no</td>
-              <td>no</td>
-              <td>Library Name</td>
-            </tr>
-            <tr>
-              <td>--readgroup</td>
-              <td>no</td>
-              <td>no</td>
-              <td>Readgroup name</td>
-            </tr>
-            <tr>
-              <td>--jsonOutput</td>
-              <td>no</td>
-              <td>no</td>
-              <td>json output file</td>
-            </tr>
-            <tr>
-              <td>--tsvOutput</td>
-              <td>no</td>
-              <td>no</td>
-              <td>tsv output file</td>
+              <td>Arguments for the tool</td>
             </tr>
           </tbody>
         </table>
