@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Biopet
+ * Copyright (c) 2014 Biopet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,7 +19,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.readfromtsv
 
 import java.io.File
 
@@ -27,24 +27,19 @@ import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
 
 class ArgsParser(toolCommand: ToolCommand[Args])
     extends AbstractOptParser[Args](toolCommand) {
-  opt[File]('i', "inputFile")
-    .unbounded()
-    .required()
-    .action((x, c) => c.copy(inputFiles = x :: c.inputFiles))
-    .text("Input sample json, can give multiple file")
-  opt[String]("sample")
-    .action((x, c) => c.copy(sample = Some(x)))
-    .text("Sample name")
-  opt[String]("library")
-    .action((x, c) => c.copy(library = Some(x)))
-    .text("Library Name")
-  opt[String]("readgroup")
-    .action((x, c) => c.copy(readgroup = Some(x)))
-    .text("Readgroup name")
-  opt[File]("jsonOutput")
-    .action((x, c) => c.copy(jsonOutput = Some(x)))
-    .text("json output file")
-  opt[File]("tsvOutput")
-    .action((x, c) => c.copy(tsvOutput = Some(x)))
-    .text("tsv output file")
+  opt[File]('i', "inputFiles") unbounded () valueName "<file>" action {
+    (x, c) =>
+      c.copy(inputFiles = x :: c.inputFiles)
+  } text
+    """Input must be a tsv file, first line is seen as header and must at least have a 'sample' column,
+      | 'library' column is optional, multiple files can be specified by using multiple flags.""".stripMargin
+  opt[File]('t', "tagFiles") unbounded () valueName "<file>" action { (x, c) =>
+    c.copy(tagFiles = x :: c.tagFiles)
+  } text "This works the same as for a normal input file. Difference is that it placed in a sub key 'tags' in the config file"
+  opt[File]('o', "outputFile") valueName "<file>" action { (x, c) =>
+    c.copy(outputFile = Some(x))
+  } text """
+           |When the extension is .yml or .yaml the output is in yaml format, otherwise it is in json.
+           |When no file is given the output goes to stdout as yaml.
+         """.stripMargin
 }

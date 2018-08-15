@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Biopet
+ * Copyright (c) 2014 Biopet
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -19,13 +19,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.readfromtsv
 
 import java.io.File
 
 case class Args(inputFiles: List[File] = Nil,
-                sample: Option[String] = None,
-                library: Option[String] = None,
-                readgroup: Option[String] = None,
-                jsonOutput: Option[File] = None,
-                tsvOutput: Option[File] = None)
+                tagFiles: List[File] = Nil,
+                outputFile: Option[File] = None)

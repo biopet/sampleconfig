@@ -19,23 +19,32 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.extracttsv
 
-import nl.biopet.tools.sampleconfig.extracttsv.ExtractTsv
-import nl.biopet.tools.sampleconfig.readfromtsv.ReadFromTsv
-import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.tool.multi.MultiToolCommand
+import java.io.File
 
-object SampleConfig extends MultiToolCommand {
+import nl.biopet.utils.tool.{AbstractOptParser, ToolCommand}
 
-  def subTools: Map[String, List[ToolCommand[_]]] =
-    Map(
-      "Tools" -> List(ExtractTsv, ReadFromTsv))
-
-  def descriptionText: String = extendedDescriptionText
-
-  def manualText: String = extendedManualText
-
-  def exampleText: String = extendedExampleText
-
+class ArgsParser(toolCommand: ToolCommand[Args])
+    extends AbstractOptParser[Args](toolCommand) {
+  opt[File]('i', "inputFile")
+    .unbounded()
+    .required()
+    .action((x, c) => c.copy(inputFiles = x :: c.inputFiles))
+    .text("Input sample json, can give multiple file")
+  opt[String]("sample")
+    .action((x, c) => c.copy(sample = Some(x)))
+    .text("Sample name")
+  opt[String]("library")
+    .action((x, c) => c.copy(library = Some(x)))
+    .text("Library Name")
+  opt[String]("readgroup")
+    .action((x, c) => c.copy(readgroup = Some(x)))
+    .text("Readgroup name")
+  opt[File]("jsonOutput")
+    .action((x, c) => c.copy(jsonOutput = Some(x)))
+    .text("json output file")
+  opt[File]("tsvOutput")
+    .action((x, c) => c.copy(tsvOutput = Some(x)))
+    .text("tsv output file")
 }

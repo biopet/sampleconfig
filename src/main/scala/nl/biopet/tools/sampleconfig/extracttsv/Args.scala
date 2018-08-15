@@ -19,23 +19,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.extracttsv
 
-import nl.biopet.tools.sampleconfig.extracttsv.ExtractTsv
-import nl.biopet.tools.sampleconfig.readfromtsv.ReadFromTsv
-import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.tool.multi.MultiToolCommand
+import java.io.File
 
-object SampleConfig extends MultiToolCommand {
-
-  def subTools: Map[String, List[ToolCommand[_]]] =
-    Map(
-      "Tools" -> List(ExtractTsv, ReadFromTsv))
-
-  def descriptionText: String = extendedDescriptionText
-
-  def manualText: String = extendedManualText
-
-  def exampleText: String = extendedExampleText
-
-}
+case class Args(inputFiles: List[File] = Nil,
+                sample: Option[String] = None,
+                library: Option[String] = None,
+                readgroup: Option[String] = None,
+                jsonOutput: Option[File] = None,
+                tsvOutput: Option[File] = None)
