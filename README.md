@@ -1,9 +1,19 @@
 # SampleConfig
 
 
+#### Tools - ExtractTsv
+
 This mean can extract samples, libraries and readgroups from a sample config file. This meant as a supporting tool inside wdl pipelines.
 It can also output a single layer as tsv file.
     
+        
+
+#### Tools - ReadFromTsv
+
+This tool enables a user to create a full sample sheet in JSON format or
+YAML format, suitable for all Biopet Queue pipelines, from TSV file(s).
+    
+        
 
 # Documentation
 
