@@ -56,7 +56,9 @@ object ReadFromTsv extends ToolCommand[Args] {
   def mapFromFile(inputFile: File, tags: Boolean = false): Map[String, Any] = {
     val reader = Source.fromFile(inputFile)
     val lines = reader.getLines().toList.filter(!_.isEmpty)
-    val header = lines.head.split("\t")
+    val header = lines.headOption
+      .map(_.split("\t"))
+      .getOrElse(throw new IllegalArgumentException(" file seems to be empty"))
     val sampleColumn = header.indexOf("sample")
     val libraryColumn = header.indexOf("library")
     if (sampleColumn == -1)
@@ -74,7 +76,8 @@ object ReadFromTsv extends ToolCommand[Args] {
         val library =
           if (libraryColumn != -1) Some(values(libraryColumn)) else None
 
-        if (sample.head.isDigit || library.exists(_.head.isDigit))
+        if (sample.headOption.exists(_.isDigit) || library.exists(
+              _.headOption.exists(_.isDigit)))
           throw new IllegalStateException(
             "Sample or library may not start with a number")
         if (sampleLibCache.contains((sample, library)))
