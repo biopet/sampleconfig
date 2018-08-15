@@ -23,6 +23,7 @@ package nl.biopet.tools.sampleconfig.extracttsv
 
 import java.io.File
 
+import nl.biopet.tools.sampleconfig.SampleConfig
 import nl.biopet.utils.conversions
 import nl.biopet.utils.io.writeLinesToFile
 import nl.biopet.utils.tool.ToolCommand
@@ -191,18 +192,23 @@ object ExtractTsv extends ToolCommand[Args] {
   def exampleText: String =
     s"""
       |Extracting samples, list goes to stdout:
-      |${example("-i", "<input config>")}
+      |${SampleConfig.example("ExtractTsv", "-i", "<input config>")}
       |
       |Extracting libraries, list go to stdout:
-      |${example("-i", "<input config>", "--sample", "<sample name>")}
+      |${SampleConfig.example("ExtractTsv",
+                              "-i",
+                              "<input config>",
+                              "--sample",
+                              "<sample name>")}
       |
       |Extracting readgroups, list go to stdout:
-      |${example("-i",
-                 "<input config>",
-                 "--sample",
-                 "<sample name>",
-                 "--library",
-                 "<library name>")}
+      |${SampleConfig.example("ExtractTsv",
+                              "-i",
+                              "<input config>",
+                              "--sample",
+                              "<sample name>",
+                              "--library",
+                              "<library name>")}
       |
       |""".stripMargin
 }
