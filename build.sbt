@@ -20,3 +20,12 @@ scalaVersion := "2.11.12"
 
 libraryDependencies += "com.github.biopet" %% "tool-utils" % "0.4"
 libraryDependencies += "com.github.biopet" %% "tool-test-utils" % "0.2.2" % Test
+
+biocondaTestCommands := Seq(
+  "biopet-sampleconfig ExtractTsv --version",
+  "biopet-sampleconfig ExtractTsv --help",
+  "biopet-sampleconfig ReadFromTsv --version",
+  "biopet-sampleconfig ReadFromTsv --help",
+  "biopet-sampleconfig CromwellArrays --version",
+  "biopet-sampleconfig CromwellArrays --help"
+)
