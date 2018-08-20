@@ -19,37 +19,10 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.readfromtsv
 
-import nl.biopet.tools.sampleconfig.cromwellarrays.CromwellArrays
-import nl.biopet.tools.sampleconfig.extracttsv.ExtractTsv
-import nl.biopet.tools.sampleconfig.readfromtsv.ReadFromTsv
-import nl.biopet.utils.conversions
-import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.tool.multi.MultiToolCommand
+import java.io.File
 
-object SampleConfig extends MultiToolCommand {
-
-  def subTools: Map[String, List[ToolCommand[_]]] =
-    Map("Tools" -> List(ExtractTsv, ReadFromTsv, CromwellArrays))
-
-  def descriptionText: String = extendedDescriptionText
-
-  def manualText: String = extendedManualText
-
-  def exampleText: String = extendedExampleText
-}
-
-class SampleConfig(config: Map[String, Any]) {
-  lazy val samples: Map[String, Sample] = config.get("samples") match {
-    case Some(s) =>
-      conversions.any2map(s).map {
-        case (name, c) => name -> new Sample(name, conversions.any2map(c))
-      }
-    case _ => Map()
-  }
-
-  lazy val values: Map[String, Any] = config.filter {
-    case (k, _) => k != "samples"
-  }
-}
+case class Args(inputFiles: List[File] = Nil,
+                tagFiles: List[File] = Nil,
+                outputFile: Option[File] = None)

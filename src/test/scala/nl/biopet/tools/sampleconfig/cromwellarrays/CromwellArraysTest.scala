@@ -19,13 +19,37 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.cromwellarrays
 
 import java.io.File
 
-case class Args(inputFiles: List[File] = Nil,
-                sample: Option[String] = None,
-                library: Option[String] = None,
-                readgroup: Option[String] = None,
-                jsonOutput: Option[File] = None,
-                tsvOutput: Option[File] = None)
+import nl.biopet.utils.test.tools.ToolTest
+import org.testng.annotations.Test
+import nl.biopet.utils.io
+
+class CromwellArraysTest extends ToolTest[Args] {
+
+  def toolCommand: CromwellArrays.type = CromwellArrays
+
+  @Test
+  def testNoArgs(): Unit = {
+    intercept[IllegalArgumentException] {
+      CromwellArrays.main(Array())
+    }.getMessage
+  }
+
+  @Test
+  def testDefault(): Unit = {
+    val outputFile = File.createTempFile("test.", ".json")
+    outputFile.deleteOnExit()
+    CromwellArrays.main(
+      Array("-i",
+            resourcePath("/samples.yml"),
+            "-o",
+            outputFile.getAbsolutePath))
+
+    val content = io.getLinesFromFile(outputFile)
+    content.mkString("\n") shouldBe """{"samples":[{"bla":"bla","id":"sample2","libraries":[]},{"id":"sample1","libraries":[{"id":"lib1","readgroups":[{"R2":"bla2","R1":"bla1","id":"rg1"}]}]}]}"""
+  }
+
+}
