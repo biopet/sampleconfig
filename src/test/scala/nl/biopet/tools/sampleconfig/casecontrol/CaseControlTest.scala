@@ -19,38 +19,40 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-package nl.biopet.tools.sampleconfig
+package nl.biopet.tools.sampleconfig.casecontrol
 
-import nl.biopet.tools.sampleconfig.casecontrol.CaseControl
-import nl.biopet.tools.sampleconfig.cromwellarrays.CromwellArrays
-import nl.biopet.tools.sampleconfig.extracttsv.ExtractTsv
-import nl.biopet.tools.sampleconfig.readfromtsv.ReadFromTsv
+import java.io.File
+
 import nl.biopet.utils.conversions
-import nl.biopet.utils.tool.ToolCommand
-import nl.biopet.utils.tool.multi.MultiToolCommand
+import nl.biopet.utils.test.tools.ToolTest
+import org.testng.annotations.Test
+import play.api.libs.json.Json
 
-object SampleConfig extends MultiToolCommand {
+class CaseControlTest extends ToolTest[Args] {
 
-  def subTools: Map[String, List[ToolCommand[_]]] =
-    Map("Tools" -> List(ExtractTsv, ReadFromTsv, CromwellArrays, CaseControl))
+  def toolCommand: CaseControl.type = CaseControl
 
-  def descriptionText: String = extendedDescriptionText
-
-  def manualText: String = extendedManualText
-
-  def exampleText: String = extendedExampleText
-}
-
-class SampleConfig(config: Map[String, Any]) {
-  lazy val samples: Map[String, Sample] = config.get("samples") match {
-    case Some(s) =>
-      conversions.any2map(s).map {
-        case (name, c) => name -> new Sample(name, conversions.any2map(c))
-      }
-    case _ => Map()
+  @Test
+  def testNoArgs(): Unit = {
+    intercept[IllegalArgumentException] {
+      CaseControl.main(Array())
+    }
   }
 
-  lazy val values: Map[String, Any] = config.filter {
-    case (k, _) => k != "samples"
+  @Test
+  def testDefault(): Unit = {
+    val output = File.createTempFile("test.", ".json")
+    output.deleteOnExit()
+
+    noException should be thrownBy CaseControl.main(
+      Array("-i",
+            resourcePath("/fake_chrQ1000simreads.bam"),
+            "-i",
+            resourcePath("/paired01.bam"),
+            "-s",
+            resourcePath("/casecontrol.yml"),
+            "-o",
+            output.toString))
+    ""
   }
 }
