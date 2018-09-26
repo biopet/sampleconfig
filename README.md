@@ -23,6 +23,13 @@ This tool is only to support biowdl pipelines.
     
         
 
+#### Tools - CaseControl
+
+ This tool will extract the case-control pairs from a sample config file.
+ It will read the headers of the bam files to confirm that samples do exist.
+    
+        
+
 # Documentation
 
 For documentation and manuals visit our [github.io page](https://biopet.github.io/sampleconfig).
