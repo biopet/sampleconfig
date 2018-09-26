@@ -53,6 +53,5 @@ class CaseControlTest extends ToolTest[Args] {
             resourcePath("/casecontrol.yml"),
             "-o",
             output.toString))
-    ""
   }
 }

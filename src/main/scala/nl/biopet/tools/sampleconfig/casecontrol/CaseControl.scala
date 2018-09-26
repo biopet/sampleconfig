@@ -55,7 +55,27 @@ object CaseControl extends ToolCommand[Args] {
     logger.info("Start")
 
     val config = sampleconfig.readSampleConfigs(cmdArgs.sampleConfigs)
-    val fileMap = bam.sampleBamMap(cmdArgs.inputFiles).map {
+    val fileMap = createFileMap(cmdArgs.inputFiles)
+
+    val pairsJson =
+      Json.toJson(createPairs(config, fileMap, cmdArgs.controlTag))
+    val pairsJsonString = Json.stringify(pairsJson)
+
+    cmdArgs.outputFile match {
+      case Some(file) => io.writeLinesToFile(file, pairsJsonString :: Nil)
+      case _          => println(pairsJsonString)
+    }
+
+    logger.info("Done")
+  }
+
+  /**
+    * This will create a map of bamfiles including the index files
+    * @param files bam files
+    * @return
+    */
+  def createFileMap(files: List[File]): Map[String, IndexedBamFile] = {
+    bam.sampleBamMap(files).map {
       case (k, v) =>
         val reader = SamReaderFactory.makeDefault().open(v)
         val index = (reader.hasIndex,
@@ -70,9 +90,20 @@ object CaseControl extends ToolCommand[Args] {
         reader.close()
         k -> IndexedBamFile(v.getPath, index.getPath)
     }
+  }
 
-    val pairs = config.samples
-      .filter(_._2.values.contains(cmdArgs.controlTag))
+  /**
+    * This will create the control pairs
+    * @param config SampleConfig
+    * @param fileMap bam files
+    * @param controlTag control tag, default "control"
+    * @return
+    */
+  def createPairs(config: SampleConfig,
+                  fileMap: Map[String, IndexedBamFile],
+                  controlTag: String = "control"): List[CaseControl] = {
+    config.samples
+      .filter { case (_, s) => s.values.contains(controlTag) }
       .flatMap {
         case (sampleName, sample) =>
           val inputBam = fileMap.getOrElse(
@@ -80,7 +111,7 @@ object CaseControl extends ToolCommand[Args] {
             throw new IllegalStateException(
               s"Bam file for input sample '$sampleName' not found"))
           sample.values
-            .get(cmdArgs.controlTag)
+            .get(controlTag)
             .toList
             .flatMap {
               case x: List[_] => x.map(_.toString)
@@ -95,16 +126,6 @@ object CaseControl extends ToolCommand[Args] {
             }
       }
       .toList
-
-    val pairsJson = Json.toJson(pairs)
-    val pairsJsonString = Json.stringify(pairsJson)
-
-    cmdArgs.outputFile match {
-      case Some(file) => io.writeLinesToFile(file, pairsJsonString :: Nil)
-      case _          => println(pairsJsonString)
-    }
-
-    logger.info("Done")
   }
 
   def descriptionText: String =
