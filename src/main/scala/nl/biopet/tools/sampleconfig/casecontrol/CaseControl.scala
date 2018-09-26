@@ -130,8 +130,8 @@ object CaseControl extends ToolCommand[Args] {
 
   def descriptionText: String =
     """
-      | This tool will extract the case control pairs from a sample config file.
-      | It will read the headers of the bam files to check what samples do exist.
+      | This tool will extract the case-control pairs from a sample config file.
+      | It will read the headers of the bam files to confirm that samples do exist.
     """.stripMargin
 
   def manualText: String =
