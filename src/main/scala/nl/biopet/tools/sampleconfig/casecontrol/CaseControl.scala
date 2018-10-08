@@ -39,7 +39,7 @@ object CaseControl extends ToolCommand[Args] {
   case class CaseControl(inputName: String,
                          inputFile: IndexedBamFile,
                          controlName: String,
-                         outputFile: IndexedBamFile)
+                         controlFile: IndexedBamFile)
 
   implicit val indexedBamFileReads: Reads[IndexedBamFile] =
     Json.reads[IndexedBamFile]
