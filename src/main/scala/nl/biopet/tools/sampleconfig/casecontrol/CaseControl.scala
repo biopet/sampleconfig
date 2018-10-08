@@ -82,7 +82,7 @@ object CaseControl extends ToolCommand[Args] {
                      new File(v.getPath + ".bai"),
                      new File(v.getPath.stripSuffix(".bam") + ".bai")) match {
           case (true, i, _) if i.exists() => i
-          case (true, i, _) if i.exists() => i
+          case (true, _, i) if i.exists() => i
           case _ =>
             throw new IllegalStateException(
               s"Bam file '$v' does not have an index file")
