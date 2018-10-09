@@ -119,6 +119,10 @@
         <p>This tool will convert the sample configs to a array based format that can be used inside wdl pipelines.
         This tool is only to support biowdl pipelines.</p>
         
+        <h4 id="tools---casecontrol" class="section">Tools - CaseControl</h4>
+        <p>This tool will extract the case-control pairs from a sample config file.
+         It will read the headers of the bam files to confirm that samples do exist.</p>
+        
         <h1 id="installation" class="section">Installation</h1>
         <p>SampleConfig requires Java 8 to be installed on your device. Download Java 8
         <a href="http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html">here</a>
@@ -156,6 +160,10 @@ samples:
           readgroupName:
             key1: value1
             key2: value2</code>`</p>
+        
+        <h4 id="tools---casecontrol-1" class="section">Tools - CaseControl</h4>
+        <p>Each that has a control need to have the control tag inside the config file.
+         The tool will automatically finds the combination of bam file needed, for this the readgroups should be setup correctly.</p>
         
         <h2 id="example" class="section">Example</h2>
         
@@ -269,6 +277,14 @@ samples:
         <pre><code>java -jar &lt;SampleConfig_jar&gt; CromwellArrays \
 -i &lt;input config&gt; \
 -i &lt;input config&gt;</code></pre>
+        
+        <h4 id="tools---casecontrol-2" class="section">Tools - CaseControl</h4>
+        <p>Default run, 2 bam files:</p>
+        <pre><code>java -jar &lt;SampleConfig_jar&gt; CaseControl \
+-i &lt;bam file&gt; \
+-i &lt;bam file&gt; \
+-s &lt;sample config file&gt; \
+-o &lt;output file&gt;</code></pre>
         
         <h2 id="usage" class="section">Usage</h2>
         <p>Usage for SampleConfig:</p>
