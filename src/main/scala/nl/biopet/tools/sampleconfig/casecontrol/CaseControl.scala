@@ -39,7 +39,8 @@ object CaseControl extends ToolCommand[Args] {
   case class CaseControl(inputName: String,
                          inputFile: IndexedBamFile,
                          controlName: String,
-                         outputFile: IndexedBamFile)
+                         controlFile: IndexedBamFile)
+  case class CaseControls(caseControls: List[CaseControl])
 
   implicit val indexedBamFileReads: Reads[IndexedBamFile] =
     Json.reads[IndexedBamFile]
@@ -48,6 +49,10 @@ object CaseControl extends ToolCommand[Args] {
 
   implicit val caseControlReads: Reads[CaseControl] = Json.reads[CaseControl]
   implicit val caseControlWrites: Writes[CaseControl] = Json.writes[CaseControl]
+
+  implicit val caseControlsReads: Reads[CaseControls] = Json.reads[CaseControls]
+  implicit val caseControlsWrites: Writes[CaseControls] =
+    Json.writes[CaseControls]
 
   def main(args: Array[String]): Unit = {
     val cmdArgs = cmdArrayToArgs(args)
@@ -82,7 +87,7 @@ object CaseControl extends ToolCommand[Args] {
                      new File(v.getPath + ".bai"),
                      new File(v.getPath.stripSuffix(".bam") + ".bai")) match {
           case (true, i, _) if i.exists() => i
-          case (true, i, _) if i.exists() => i
+          case (true, _, i) if i.exists() => i
           case _ =>
             throw new IllegalStateException(
               s"Bam file '$v' does not have an index file")
@@ -101,31 +106,32 @@ object CaseControl extends ToolCommand[Args] {
     */
   def createPairs(config: SampleConfig,
                   fileMap: Map[String, IndexedBamFile],
-                  controlTag: String = "control"): List[CaseControl] = {
-    config.samples
-      .filter { case (_, s) => s.values.contains(controlTag) }
-      .flatMap {
-        case (sampleName, sample) =>
-          val inputBam = fileMap.getOrElse(
-            sampleName,
-            throw new IllegalStateException(
-              s"Bam file for input sample '$sampleName' not found"))
-          sample.values
-            .get(controlTag)
-            .toList
-            .flatMap {
-              case x: List[_] => x.map(_.toString)
-              case x          => List(x.toString)
-            }
-            .map { controlName =>
-              val controlBam = fileMap.getOrElse(
-                controlName,
-                throw new IllegalStateException(
-                  s"Bam file for input sample '$controlName' not found"))
-              CaseControl(sampleName, inputBam, controlName, controlBam)
-            }
-      }
-      .toList
+                  controlTag: String = "control"): CaseControls = {
+    CaseControls(
+      config.samples
+        .filter { case (_, s) => s.values.contains(controlTag) }
+        .flatMap {
+          case (sampleName, sample) =>
+            val inputBam = fileMap.getOrElse(
+              sampleName,
+              throw new IllegalStateException(
+                s"Bam file for input sample '$sampleName' not found"))
+            sample.values
+              .get(controlTag)
+              .toList
+              .flatMap {
+                case x: List[_] => x.map(_.toString)
+                case x          => List(x.toString)
+              }
+              .map { controlName =>
+                val controlBam = fileMap.getOrElse(
+                  controlName,
+                  throw new IllegalStateException(
+                    s"Bam file for input sample '$controlName' not found"))
+                CaseControl(sampleName, inputBam, controlName, controlBam)
+              }
+        }
+        .toList)
   }
 
   def descriptionText: String =

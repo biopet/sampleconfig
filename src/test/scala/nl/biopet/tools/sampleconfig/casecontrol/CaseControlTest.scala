@@ -54,4 +54,21 @@ class CaseControlTest extends ToolTest[Args] {
             "-o",
             output.toString))
   }
+
+  @Test
+  def testDefault2(): Unit = {
+    val output = File.createTempFile("test.", ".json")
+    output.deleteOnExit()
+
+    noException should be thrownBy CaseControl.main(
+      Array("-i",
+            resourcePath("/fake_chrQ1000simreads.bam"),
+            "-i",
+            resourcePath("/paired02.bam"),
+            "-s",
+            resourcePath("/casecontrol.yml"),
+            "-o",
+            output.toString))
+  }
+
 }
